@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.linalg as la
+import itertools as it
 from scipy.misc import factorial
 """
 A module for finding the eigenvalues and wavefunctions
