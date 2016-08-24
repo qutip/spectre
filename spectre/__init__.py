@@ -32,6 +32,10 @@
 ###############################################################################
 from __future__ import division, print_function, absolute_import
 
+import spectre.version
+
+__version__ = version.version
+
 from spectre.eigensolver import *
 
 

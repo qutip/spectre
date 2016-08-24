@@ -22,7 +22,7 @@ Operating System :: Microsoft :: Windows
 """
 
 # import statements
-import os, subprocess
+import os
 import sys
 
 # The following is required to get unit tests up and running.
@@ -48,7 +48,7 @@ except ImportError:
     except ImportError:
         from distutils.core import setup
 
-spectre_root = os.path.dirname(os.path.abspath(__file__))
+
 # all information about QuTiP goes here
 MAJOR = 0
 MINOR = 1
@@ -69,65 +69,21 @@ AUTHOR_EMAIL = "nonhermitian@gmail.com"
 LICENSE = "BSD"
 DESCRIPTION = DOCLINES[0]
 LONG_DESCRIPTION = "\n".join(DOCLINES[2:])
-KEYWORDS = "quantum physics wavefunction"
+KEYWORDS = "quantum physics wave function"
 URL = "http://qutip.org"
 CLASSIFIERS = [_f for _f in CLASSIFIERS.split('\n') if _f]
 PLATFORMS = ["Linux", "Mac OSX", "Unix", "Windows"]
 
-def get_version_from_git():
+
+def git_short_hash():
     try:
-        p = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
-                             cwd=spectre_root,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-    except OSError:
-        return
-    if p.wait() != 0:
-        return
-    if not os.path.samefile(p.communicate()[0].decode().rstrip('\n'), spectre_root):
-        # The top-level directory of the current Git repository is not the same
-        # as the root directory of the source distribution: do not extract the
-        # version from Git.
-        return VERSION
+        return "+" + os.popen('git log -1 --format="%h"').read().strip()
+    except:
+        return ""
 
-    # git describe --first-parent does not take into account tags from branches
-    # that were merged-in.
-    for opts in [['--first-parent'], []]:
-        try:
-            p = subprocess.Popen(['git', 'describe', '--long'] + opts,
-                                 cwd=spectre_root,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except OSError:
-            return VERSION
-        if p.wait() == 0:
-            break
-    else:
-        return VERSION
-    description = p.communicate()[0].decode().strip('v').rstrip('\n')
-
-    release, dev, git = description.rsplit('-', 2)
-    version = [VERSION]
-    labels = []
-    if dev != "0":
-        version.append(".dev{}".format(dev))
-        labels.append(git)
-
-    try:
-        p = subprocess.Popen(['git', 'diff', '--quiet'], cwd=spectre_root)
-    except OSError:
-        labels.append('confused') # This should never happen.
-
-    if labels:
-        version.append('+')
-        version.append(".".join(labels))
-
-    return "".join(version)
-
-if ISRELEASED:
-    FULLVERSION = VERSION
-else:
-    print(get_version_from_git())
-    FULLVERSION = get_version_from_git()
+FULLVERSION = VERSION
+if not ISRELEASED:
+    FULLVERSION += '.dev'+str(MICRO)+git_short_hash()
 
 if np is None:
     EXTRA_KWARGS['version'] = FULLVERSION
