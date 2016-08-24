@@ -79,6 +79,7 @@ def get_version_from_git():
         p = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
                              cwd=spectre_root,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
     except OSError:
         return
     if p.wait() != 0:
@@ -87,7 +88,7 @@ def get_version_from_git():
         # The top-level directory of the current Git repository is not the same
         # as the root directory of the source distribution: do not extract the
         # version from Git.
-        return
+        return VERSION
 
     # git describe --first-parent does not take into account tags from branches
     # that were merged-in.
@@ -97,11 +98,11 @@ def get_version_from_git():
                                  cwd=spectre_root,
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
-            return
+            return VERSION
         if p.wait() == 0:
             break
     else:
-        return
+        return VERSION
     description = p.communicate()[0].decode().strip('v').rstrip('\n')
 
     release, dev, git = description.rsplit('-', 2)
@@ -125,6 +126,7 @@ def get_version_from_git():
 if ISRELEASED:
     FULLVERSION = VERSION
 else:
+    print(get_version_from_git())
     FULLVERSION = get_version_from_git()
 
 if np is None:
